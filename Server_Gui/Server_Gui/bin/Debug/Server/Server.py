@@ -1,15 +1,16 @@
 __author__ = 'Hadar'
 import socket
-import Security.Aes
+import Aes
 import threading
-from Security.Rsa import *
+from Rsa import *
 from Crypto import *
 import time
 import pickle
 from base64 import b64decode, b64encode
-import time
+import time, sys
 import struct
 import pypyodbc
+
 
 # region ----------   C O N S T A N T S  ------------------------------------------------------------------------------------------------
 PORT = 5070
@@ -21,19 +22,22 @@ LOCAL_ADDRESS = "0.0.0.0"
 IF_CLIENT_NOT_CONNECTED = True
 
 class server():
-    def __init__(self):
+    def __init__(self, path):
         self.socket = socket.socket()
         self.client_keys = {}
         self.crypto = Crypto()
-        time.sleep(3)
         self.f = open(r'\\.\pipe\myPipee', 'r+b', 0)
-        self.dbcursor = self.connectdb()
+        self.dbcursor = self.connectdb(path)
 
-    def connectdb(self):
+    def connectdb(self, path):
         pypyodbc.lowercase = False
-        conn = pypyodbc.connect(
-            r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" +
-            r"Dbq=Database21.accdb;")
+        try:
+            ACCESS_DATABASE_FILE = path + r'\ComputersBasicD.accdb'
+            ODBC_CONN_STR = 'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=%s;' % ACCESS_DATABASE_FILE
+            conn = pypyodbc.connect(ODBC_CONN_STR)
+            print 'Success connect to DB'
+        except Exception,ex:
+            print ex
         cur = conn.cursor()
         return cur
 
@@ -201,8 +205,6 @@ class server():
 
 
 
-
-
 def task(ser,st,csocket, ip):
     print "recieved command"
     if st is not None:
@@ -219,5 +221,12 @@ def task(ser,st,csocket, ip):
         ser.writeTGui(ser.recvFclient(csocket))
     ser.Continues(csocket,ip)
 
-ser = server()
-ser.start()
+
+def main(argv):
+    time.sleep(1)
+    ser = server(argv)
+    ser.start()
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])

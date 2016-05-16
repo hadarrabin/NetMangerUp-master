@@ -5,11 +5,8 @@ import System.Monitor
 from System.Monitor import *
 from Security.Rsa import *
 from Security.Aes import *
-import pickle
-from Crypto import *
 from base64 import b64encode, b64decode
 import pickle
-#import MySQLdb
 
 #region ----------   CONSTANTS   ---------------------------------------------------------------
 SERVER_ADDRESS = '127.0.0.1'             # The default target server ip
@@ -87,34 +84,18 @@ class client:
 
     def translate(self, st):
         if (st is "Update Processes"):
-            """db = MySQLdb.connect("localhost","testuser","test123","PROCC")
-            cursor = db.cursor()"""
-            print "AA"
             processes = self.syst.get_processes_dict()
-            print "BB"
             self.syst.create_process_handle_dict(processes)
-            print "CC"
             self.cp.run(processes)
-            print "DD"
             using = self.cp.cpu_utilization()
-            print "EE"
             processeslen = len(processes.keys())
             processeslenn = str(processeslen)
-            print "FF"
             self.syst.add_each_process_using_cpu(self.cp,processes)
-            print "GG"
             self.send(processeslenn)
             i = 0
             for item in processes:
                 i = i +1
                 print i
-                """
-                sql = "INSERT INTO PROCC(PID, \
-                NAME, USING) \
-                VALUES('%s', '%s', '%s')" % \
-                (item,processes[item][0],processes[item][1])
-                cursor.execute(sql)
-                db.commit()"""
                 itemm = str(item)
                 self.send(itemm)
                 namem = str(processes[item][0])
